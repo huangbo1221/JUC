@@ -24,9 +24,22 @@ public class CallableTest {
         // Thread的构造方法的target为Runnable，要与Callable扯上关系，得借助FutureTask
         // 因为FutureTask是Runnable的一个实现，而FutureTask的构造方法里可以有Callable参数
         FutureTask futureTask = new FutureTask(myThread);
-        new Thread(futureTask).start();
+//        new Thread(futureTask).start();
+//        String res = (String) futureTask.get();
+//        System.out.println(res);
+        // 上面输出：hahah
+
+
+
+        // 改成如下，call方法会调用几次呢？
+        new Thread(futureTask, "A").start();
+        new Thread(futureTask, "B").start();
         String res = (String) futureTask.get();
         System.out.println(res);
+        // 输出：hahah
+        // 原因：call方法只被调用了一次，可以仔细看看FutureTask的run方法
+        // run方法里会判断当前futureTask的state是不是NEW状态，若不是，则直接return
+        // 当线程A执行后，state就已经不是NEW状态了
     }
 }
 
