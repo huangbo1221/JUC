@@ -11,7 +11,10 @@ import java.util.concurrent.*;
  */
 public class ThreadPoolExecutorDemo {
     public static void main(String[] args) {
-        test1();
+//        test1();
+//        test2();
+//        test3();
+        test4();
     }
 
     public static void test1() {
@@ -99,6 +102,109 @@ public class ThreadPoolExecutorDemo {
          * 	at java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1379)
          * 	at com.bo.threadpool.ThreadPoolExecutorDemo.test1(ThreadPoolExecutorDemo.java:30)
          * 	at com.bo.threadpool.ThreadPoolExecutorDemo.main(ThreadPoolExecutorDemo.java:14)
+         */
+    }
+
+    public static void test2() {
+        ThreadPoolExecutor executorService = new ThreadPoolExecutor(
+                2,
+                5,
+                3,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>(3),
+                Executors.defaultThreadFactory(),
+                new ThreadPoolExecutor.CallerRunsPolicy()); // CallerRunsPolicy()表示超出线程池所能承受的最大值的线程由
+        // 父线程区处理
+        try {
+            for (int i = 0; i < 10; i++) {
+                executorService.execute(() -> {
+                    System.out.println(Thread.currentThread().getName() + " excuted!");
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            executorService.shutdown();
+        }
+        // 输出如下：可见，超出的两个线程由main线程去执行了
+        /**
+         * main excuted!
+         * main excuted!
+         * pool-1-thread-3 excuted!
+         * pool-1-thread-2 excuted!
+         * pool-1-thread-4 excuted!
+         * pool-1-thread-1 excuted!
+         * pool-1-thread-2 excuted!
+         * pool-1-thread-4 excuted!
+         * pool-1-thread-3 excuted!
+         * pool-1-thread-5 excuted!
+         */
+    }
+
+    public static void test3() {
+        ThreadPoolExecutor executorService = new ThreadPoolExecutor(
+                2,
+                5,
+                3,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>(3),
+                Executors.defaultThreadFactory(),
+                new ThreadPoolExecutor.DiscardPolicy()); // DiscardPolicy()表示直接丢弃超出的线程
+        try {
+            for (int i = 0; i < 10; i++) {
+                executorService.execute(() -> {
+                    System.out.println(Thread.currentThread().getName() + " excuted!");
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            executorService.shutdown();
+        }
+        // 输出如下：可见，超出的两个线程被丢弃了
+        /**
+         * pool-1-thread-1 excuted!
+         * pool-1-thread-5 excuted!
+         * pool-1-thread-4 excuted!
+         * pool-1-thread-3 excuted!
+         * pool-1-thread-2 excuted!
+         * pool-1-thread-4 excuted!
+         * pool-1-thread-1 excuted!
+         * pool-1-thread-5 excuted!
+         */
+    }
+
+    public static void test4() {
+        ThreadPoolExecutor executorService = new ThreadPoolExecutor(
+                2,
+                5,
+                3,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>(3),
+                Executors.defaultThreadFactory(),
+                new ThreadPoolExecutor.DiscardOldestPolicy()); // DiscardPolicy()表示把阻塞队列最靠前的任务丢弃，重新尝试
+        // 执行当前任务
+        try {
+            for (int i = 0; i < 10; i++) {
+                executorService.execute(() -> {
+                    System.out.println(Thread.currentThread().getName() + " excuted!");
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            executorService.shutdown();
+        }
+        // 输出如下：表示把阻塞队列最靠前的任务丢弃，重新尝试执行当前任务
+        /**
+         * pool-1-thread-1 excuted!
+         * pool-1-thread-5 excuted!
+         * pool-1-thread-4 excuted!
+         * pool-1-thread-3 excuted!
+         * pool-1-thread-2 excuted!
+         * pool-1-thread-4 excuted!
+         * pool-1-thread-5 excuted!
+         * pool-1-thread-1 excuted!
          */
     }
 }
