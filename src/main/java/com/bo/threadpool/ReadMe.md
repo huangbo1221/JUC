@@ -60,3 +60,10 @@ public ThreadPoolExecutor(int corePoolSize,// 核心线程数量，就像联合�
         this.handler = handler;
     }
 ```
+
+## 七大参数中有个最大线程数的设置，怎么选择？
+1、CPU密集型  服务器是几核，就设置多少最大线程数
+最好不要再代码里写死最大线程数，可以通过(Runtime.getRuntime().availableProcessors()获取服务器核数，因为生产环境和
+本地开发的环境不一样，因此不要写死！
+2、IO密集型
+判断你程序中非常耗IO的线程数，然后乘以2！

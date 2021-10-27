@@ -14,7 +14,8 @@ public class ThreadPoolExecutorDemo {
 //        test1();
 //        test2();
 //        test3();
-        test4();
+//        test4();
+        System.out.println(Runtime.getRuntime().availableProcessors());
     }
 
     public static void test1() {
