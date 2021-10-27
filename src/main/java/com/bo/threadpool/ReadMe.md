@@ -1,3 +1,6 @@
+## 掌握三大方法（add/remove、offer/poll、put/take）、线程池七大参数、四种拒绝策略
+详细请看BlockQueueTest.java和ThreadPoolExecutorDemo.java
+
 ## Executors创建线程池方式的底层源码分析
 ### Executors.newSingleThreadExecutor()
 ```java
