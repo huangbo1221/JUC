@@ -35,3 +35,17 @@ Volatile是java虚拟机提供的轻量级同步机制，具有以下三个特�
 * 如果对一个变量进行lock操作，会清空所有工作内存中此变量的值，在执行引擎使用这个变量前，必须重新load或assign操作初始化变量的值
 * 如果一个变量没有被lock，就不能对其进行unlock操作。也不能unlock一个被其他线程锁住的变量
 * 对一个变量进行unlock操作之前，必须把此变量同步回主内存
+
+
+### 在VolatileDemo2的实例中，如果不能使用Lock和synchronized同步，还能使用什么方式来保证原子性。
+```java
+public static void add() {
+        ++num;// 不是一个原子的操作
+    }
+```
+上面的++num虽然只有一行，但实际不是一个原子操作，可以反编译看下
+执行javap -c VolatileDemo2.class
+![img_2.png](img_2.png)
+分别有get静态变量，然后执行加法操作，最后put变量。即实际上有三步！
+
+可以使用原子类来解决原子性问题
