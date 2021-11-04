@@ -1,7 +1,7 @@
 package com.bo.single;
 
 /**
- * @ClassName LazyDemo3
+ * @ClassName LazyDemo4
  * @Description 解决双重检测锁模式下指令重排造成的多线程不安全问题
  * @Author huangbo1221
  * @Date 2021/11/3 22:51

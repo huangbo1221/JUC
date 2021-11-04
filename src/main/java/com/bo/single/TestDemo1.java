@@ -1,6 +1,7 @@
 package com.bo.single;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 
 /**
  * @ClassName TestDemo1
@@ -26,7 +27,17 @@ public class TestDemo1 {
         System.out.println("====================test7==================");
 //        test7();
         System.out.println("====================test8==================");
-        test8();
+//        test8();
+        System.out.println("====================test9==================");
+//        test9();
+        System.out.println("====================test10==================");
+        test10();
+        System.out.println("====================test11==================");
+        test11();
+        System.out.println("====================test12==================");
+//        test12();
+        System.out.println("====================test13==================");
+        test13();
     }
 
     /**
@@ -201,10 +212,135 @@ public class TestDemo1 {
         LazyDemo4 lazyDemo2 = declaredConstructor.newInstance(null);
         System.out.println(lazyDemo2);
         // 上面的输出如下：可见，出现了两个不同的实例，破坏了单例模式
-        // 上面new出来的两个实例是没有经过LazyDemo4的getInstance方法的。而是反射构造的实例
+        // 上面new出来的两个实例是没有经过LazyDemo4的getInstance方法的。而是反射构造的实例，LAZYDEMO4
+        // 一直为null
         /**
          * com.bo.single.LazyDemo4@7f31245a
          * com.bo.single.LazyDemo4@6d6f6e28
+         */
+    }
+
+    /**
+     * 上面test8中，通过两个反射来破坏单例模式也是可以被解决的，在构造器里加一个标志位，而不是通过
+     * 静态类变量来判断
+     * @throws Exception
+     */
+    public static void test9() throws Exception{
+        // 反射来获取实例
+        Constructor<LazyDemo5> declaredConstructor = LazyDemo5.class.getDeclaredConstructor(null);
+        declaredConstructor.setAccessible(true);
+        LazyDemo5 lazyDemo1 = declaredConstructor.newInstance(null);
+        System.out.println(lazyDemo1);
+        LazyDemo5 lazyDemo2 = declaredConstructor.newInstance(null);
+        System.out.println(lazyDemo2);
+        // 上面的输出如下：
+        /**
+         * com.bo.single.LazyDemo5@7f31245a
+         * Exception in thread "main" java.lang.reflect.InvocationTargetException
+         * 	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+         * 	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62)
+         * 	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+         * 	at java.lang.reflect.Constructor.newInstance(Constructor.java:423)
+         * 	at com.bo.single.TestDemo1.test9(TestDemo1.java:225)
+         * 	at com.bo.single.TestDemo1.main(TestDemo1.java:31)
+         * Caused by: java.lang.RuntimeException: 不要试图使用反射破坏异常
+         * 	at com.bo.single.LazyDemo5.<init>(LazyDemo5.java:21)
+         * 	... 6 more
+         */
+    }
+
+    /**
+     * 上面的test9其实也是有问题的额，仍可通过反射改变标志位点额值，再破坏单例模式
+     * @throws Exception
+     */
+    public static void test10() throws Exception{
+        Constructor<LazyDemo5> declaredConstructor = LazyDemo5.class.getDeclaredConstructor(null);
+        declaredConstructor.setAccessible(true);
+        LazyDemo5 lazyDemo5 = declaredConstructor.newInstance(null);
+        System.out.println(lazyDemo5);
+
+        Field flag = LazyDemo5.class.getDeclaredField("flag");
+        flag.setAccessible(true);
+        flag.set(lazyDemo5, false);
+        LazyDemo5 lazyDemo51 = declaredConstructor.newInstance();
+        System.out.println(lazyDemo51);
+        // 上面的输出如下：
+        /**
+         * com.bo.single.LazyDemo5@7f31245a
+         * com.bo.single.LazyDemo5@45ee12a7
+         */
+    }
+
+    /**
+     * 从上面的例子中可以看出，不管是懒汉式单例模式怎么变，还是会有安全问题。那么有没有更好的单例模式呢。
+     * 答案是肯定的，可以利用枚举类来设计单例模式
+     */
+    public static void test11() {
+        EnumDemo1 instance = EnumDemo1.INSTANCE;
+        System.out.println(instance);
+        System.out.println(EnumDemo1.getInstance());
+        // 上面的输出如下：
+        /**
+         * INSTANCE
+         * INSTANCE
+         */
+
+        System.out.println(instance.hashCode());
+        System.out.println(EnumDemo1.getInstance().hashCode());
+        // 上面的输出如下：
+        /**
+         * 856419764
+         * 856419764
+         */
+    }
+
+    /**
+     * 枚举类的单例模式是否可以被破坏呢？可以采用反射来尝试一下
+     */
+    public static void test12() throws Exception{
+        EnumDemo1 instance = EnumDemo1.INSTANCE;
+        System.out.println(instance);
+        // 利用反射来生成实例必须得知道它的构造函数，先来看看idea的target中生成的反编译文件，可以看到img.png的内容
+        // 只有一个无参构造，我们可以尝试用一下无参构造
+        Constructor<EnumDemo1> declaredConstructor = EnumDemo1.class.getDeclaredConstructor(null);
+        declaredConstructor.setAccessible(true);
+        EnumDemo1 enumDemo1 = declaredConstructor.newInstance(null);
+        System.out.println(enumDemo1);
+        // 上面的输出如下：可见，利用无参构造来进行反射是不可能的，说明无参构造不存在！
+        /**
+         * INSTANCE
+         * Exception in thread "main" java.lang.NoSuchMethodException: com.bo.single.EnumDemo1.<init>()
+         * 	at java.lang.Class.getConstructor0(Class.java:3082)
+         * 	at java.lang.Class.getDeclaredConstructor(Class.java:2178)
+         * 	at com.bo.single.TestDemo1.test12(TestDemo1.java:303)
+         * 	at com.bo.single.TestDemo1.main(TestDemo1.java:38)
+         */
+
+        /**
+         * 即使用了jdk的反编译工具javap指令，反编译出来的代码如img_1.png所示，仍仍然是无参构造，说明反编译出来的也不对！
+         */
+    }
+
+    /**
+     * 针对test12，可以使用更加专业的反编译工具jad，反编译生成如
+     * img_2.png和img_3.png所示，可以EnumDemo1实际是有参构造函数
+     */
+    public static void test13() throws Exception{
+
+        EnumDemo1 instance = EnumDemo1.INSTANCE;
+        System.out.println(instance);
+
+        Constructor<EnumDemo1> declaredConstructor = EnumDemo1.class.getDeclaredConstructor(String.class, int.class);
+        declaredConstructor.setAccessible(true);
+        EnumDemo1 enumDemo1 = declaredConstructor.newInstance();
+        System.out.println(enumDemo1);
+        // 上面的输出如下：可见，枚举确实不能破坏单例模式！！！
+        /**
+         * INSTANCE
+         * Exception in thread "main" java.lang.IllegalArgumentException: Cannot reflectively create enum objects
+         * 	at java.lang.reflect.Constructor.newInstance(Constructor.java:417)
+         * 	at com.bo.single.TestDemo1.test13(TestDemo1.java:335)
+         * 	at com.bo.single.TestDemo1.main(TestDemo1.java:40)
          */
     }
 
