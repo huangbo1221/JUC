@@ -25,5 +25,7 @@ public class CasDemo1 {
          * 2022
          */
 
+        atomicInteger.getAndIncrement();
+
     }
 }
