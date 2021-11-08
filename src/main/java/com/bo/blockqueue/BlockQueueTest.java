@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @ClassName BlockQueueTest
- * @Description TODO
+ * @Description 了解三大方法
  * @Author huangbo1221
  * @Date 2021/10/21 8:20
  * @Version 1.0
